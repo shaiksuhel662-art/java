@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .add-btn {
+            grid-column: span 2;
+        }
+
+        .search {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .student-list {
+            margin-top: 20px;
+        }
+
+        .student {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+
+        .student-info {
+            line-height: 1.6;
+        }
+
+        .delete-btn {
+            background-color: #dc2626;
+            padding: 8px 15px;
+        }
+
+        .delete-btn:hover {
+            background-color: #b91c1c;
+        }
+
+        .total {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .no-students {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form {
+                grid-template-columns: 1fr;
+            }
+
+            .add-btn {
+                grid-column: span 1;
+            }
+
+            .student {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Student Management System</h1>
+
+    <div class="form">
+
+        <input type="number" id="studentId"
+               placeholder="Enter Student ID">
+
+        <input type="text" id="studentName"
+               placeholder="Enter Student Name">
+
+        <input type="number" id="studentMarks"
+               placeholder="Enter Marks">
+
+        <input type="text" id="studentCourse"
+               placeholder="Enter Course">
+
+        <button class="add-btn" onclick="addStudent()">
+            Add Student
+        </button>
+
+    </div>
+
+    <!-- Search -->
+    <input
+        type="text"
+        id="search"
+        class="search"
+        placeholder="Search student by name or ID..."
+        oninput="searchStudent()"
+    >
+
+    <div class="total">
+        Total Students: <span id="totalStudents">0</span>
+    </div>
+
+    <!-- Student List -->
+    <div id="studentList" class="student-list"></div>
+
+</div>
+
+
+<script>
+
+    // Array to store students
+    let students = [];
+
+
+   
+
+    const addStudent = () => {
+
+        const id = document.getElementById("studentId").value;
+        const name = document.getElementById("studentName").value;
+        const marks = document.getElementById("studentMarks").value;
+        const course = document.getElementById("studentCourse").value;
+
+        if (id === "" || name === "" || marks === "" || course === "") {
+            alert("Please enter all student details");
+            return;
+        }
+
+        const student = {
+            id: Number(id),
+            name: name,
+            marks: Number(marks),
+            course: course
+        };
+
+        students.push(student);
+
+        document.getElementById("studentId").value = "";
+        document.getElementById("studentName").value = "";
+        document.getElementById("studentMarks").value = "";
+        document.getElementById("studentCourse").value = "";
+
+        displayStudents();
+    };
+
+
+
+    const displayStudents = (studentArray = students) => {
+
+        const studentList = document.getElementById("studentList");
+
+        studentList.innerHTML = "";
+
+        document.getElementById("totalStudents").textContent =
+            students.length;
+
+
+        if (studentArray.length === 0) {
+
+            studentList.innerHTML =
+                `<div class="no-students">
+                    No students found
+                 </div>`;
+
+            return;
+        }
+
+
+        studentArray.forEach((student) => {
+
+            const studentDiv = document.createElement("div");
+
+            studentDiv.className = "student";
+
+            studentDiv.innerHTML = `
+                <div class="student-info">
+                    <strong>${student.name}</strong><br>
+                    ID: ${student.id}<br>
+                    Marks: ${student.marks}<br>
+                    Course: ${student.course}
+                </div>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteStudent(${student.id})">
+                    Delete
+                </button>
+            `;
+
+            studentList.appendChild(studentDiv);
+
+        });
+    };
+
+
+
+
+    const searchStudent = () => {
+
+        const searchValue =
+            document.getElementById("search").value.toLowerCase();
+
+        const filteredStudents = students.filter((student) =>
+
+            student.name.toLowerCase().includes(searchValue) ||
+            student.id.toString().includes(searchValue)
+
+        );
+
+        displayStudents(filteredStudents);
+    };
+
+    const deleteStudent = (id) => {
+
+        students = students.filter((student) =>
+            student.id !== id
+        );
+
+        displayStudents();
+    };
+
+
+</script>
+
+</body>
+</html>
